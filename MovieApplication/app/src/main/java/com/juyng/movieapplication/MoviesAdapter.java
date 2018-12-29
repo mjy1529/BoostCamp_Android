@@ -1,6 +1,7 @@
 package com.juyng.movieapplication;
 
 import android.content.Context;
+import android.content.Intent;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -26,9 +27,18 @@ public class MoviesAdapter extends RecyclerView.Adapter<MoviesAdapter.MyViewHold
 
     @NonNull
     @Override
-    public MoviesAdapter.MyViewHolder onCreateViewHolder(@NonNull ViewGroup viewGroup, int i) {
+    public MoviesAdapter.MyViewHolder onCreateViewHolder(@NonNull ViewGroup viewGroup, final int i) {
         View view = LayoutInflater.from(viewGroup.getContext()).inflate(R.layout.recycler_movie_item, viewGroup, false);
-        return new MyViewHolder(view);
+        MyViewHolder myViewHolder = new MyViewHolder(view);
+        myViewHolder.itemView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(v.getContext(), ResultActivity.class);
+                intent.putExtra("link", moviesList.get(i).getLink());
+                v.getContext().startActivity(intent);
+            }
+        });
+        return myViewHolder;
     }
 
     @Override
@@ -44,6 +54,8 @@ public class MoviesAdapter extends RecyclerView.Adapter<MoviesAdapter.MyViewHold
         myViewHolder.pubDate.setText(movie.getPubDate());
         myViewHolder.director.setText(movie.getDirector());
         myViewHolder.actor.setText(movie.getActor());
+
+
     }
 
     @Override
