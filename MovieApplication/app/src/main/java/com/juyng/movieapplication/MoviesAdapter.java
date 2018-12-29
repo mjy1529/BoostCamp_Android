@@ -54,8 +54,6 @@ public class MoviesAdapter extends RecyclerView.Adapter<MoviesAdapter.MyViewHold
         myViewHolder.pubDate.setText(movie.getPubDate());
         myViewHolder.director.setText(movie.getDirector());
         myViewHolder.actor.setText(movie.getActor());
-
-
     }
 
     @Override

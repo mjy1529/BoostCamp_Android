@@ -14,6 +14,7 @@
         android:layout_height="wrap_content"
         android:layout_marginRight="10dp"
         android:hint="영화 제목 입력"
+        android:maxLines="1"
         app:layout_constraintBottom_toBottomOf="@+id/searchBtn"
         app:layout_constraintEnd_toStartOf="@id/searchBtn"
         app:layout_constraintStart_toStartOf="parent" />

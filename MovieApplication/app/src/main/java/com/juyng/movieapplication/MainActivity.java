@@ -10,6 +10,8 @@ import android.view.KeyEvent;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.Toast;
+
 import java.util.ArrayList;
 
 import butterknife.BindView;
@@ -63,24 +65,28 @@ public class MainActivity extends AppCompatActivity {
     @OnClick(R.id.searchBtn)
     public void onButtonClick() {
         String word = editText.getText().toString();
-        Call<MovieResult> request = service.getMovieList(word);
-        request.enqueue(new Callback<MovieResult>() {
-            @Override
-            public void onResponse(Call<MovieResult> call, Response<MovieResult> response) {
-                if(response.isSuccessful()) {
-                    Log.d(TAG, "성공");
-                    movieList = response.body().items;
-                    mAdapter = new MoviesAdapter(getApplicationContext(), movieList);
-                    recyclerView.setAdapter(mAdapter);
+        if(!editText.getText().toString().equals("")) {
+            Call<MovieResult> request = service.getMovieList(word);
+            request.enqueue(new Callback<MovieResult>() {
+                @Override
+                public void onResponse(Call<MovieResult> call, Response<MovieResult> response) {
+                    if (response.isSuccessful()) {
+                        Log.d(TAG, "성공");
+                        movieList = response.body().items;
+                        mAdapter = new MoviesAdapter(getApplicationContext(), movieList);
+                        recyclerView.setAdapter(mAdapter);
+                    }
                 }
-            }
 
-            @Override
-            public void onFailure(Call<MovieResult> call, Throwable t) {
-                Log.d(TAG, "실패 : " + t.getMessage());
-            }
-        });
-        InputMethodManager inputMethodManager = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
-        inputMethodManager.hideSoftInputFromWindow(editText.getWindowToken(), 0);
+                @Override
+                public void onFailure(Call<MovieResult> call, Throwable t) {
+                    Log.d(TAG, "실패 : " + t.getMessage());
+                }
+            });
+            InputMethodManager inputMethodManager = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+            inputMethodManager.hideSoftInputFromWindow(editText.getWindowToken(), 0);
+        } else {
+            Toast.makeText(this, "검색어를 입력해주세요.", Toast.LENGTH_SHORT).show();
+        }
     }
 }
