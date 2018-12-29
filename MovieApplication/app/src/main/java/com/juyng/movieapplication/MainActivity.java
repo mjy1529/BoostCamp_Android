@@ -7,9 +7,11 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.KeyEvent;
+import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import java.util.ArrayList;
@@ -32,6 +34,7 @@ public class MainActivity extends AppCompatActivity {
     private ArrayList<Movie> movieList;
     private MoviesAdapter mAdapter;
     RecyclerView recyclerView;
+    TextView noResultMessage;
 
     NetworkService service;
 
@@ -51,6 +54,7 @@ public class MainActivity extends AppCompatActivity {
         editText = (EditText) findViewById(R.id.editText);
         recyclerView = (RecyclerView) findViewById(R.id.recyclerView);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
+        noResultMessage = (TextView) findViewById(R.id.noResultMessage);
     }
 
     public void initNetworkService() {
@@ -65,7 +69,7 @@ public class MainActivity extends AppCompatActivity {
     @OnClick(R.id.searchBtn)
     public void onButtonClick() {
         String word = editText.getText().toString();
-        if(!editText.getText().toString().equals("")) {
+        if (!editText.getText().toString().equals("")) {
             Call<MovieResult> request = service.getMovieList(word);
             request.enqueue(new Callback<MovieResult>() {
                 @Override
@@ -75,6 +79,13 @@ public class MainActivity extends AppCompatActivity {
                         movieList = response.body().items;
                         mAdapter = new MoviesAdapter(getApplicationContext(), movieList);
                         recyclerView.setAdapter(mAdapter);
+                    }
+                    if (movieList.size() == 0) {
+                        recyclerView.setVisibility(View.GONE);
+                        noResultMessage.setVisibility(View.VISIBLE);
+                    } else {
+                        recyclerView.setVisibility(View.VISIBLE);
+                        noResultMessage.setVisibility(View.GONE);
                     }
                 }
 
