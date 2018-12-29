@@ -1,25 +1,81 @@
 package com.juyng.movieapplication;
 
-import android.databinding.DataBindingUtil;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.view.View;
-import android.widget.Toast;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
+import android.util.Log;
+import android.widget.Button;
+import android.widget.EditText;
+import java.util.ArrayList;
 
-import com.juyng.movieapplication.databinding.ActivityMainBinding;
+import butterknife.BindView;
+import butterknife.ButterKnife;
+import butterknife.OnClick;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+import retrofit2.Retrofit;
+import retrofit2.converter.gson.GsonConverterFactory;
+import retrofit2.converter.scalars.ScalarsConverterFactory;
 
 public class MainActivity extends AppCompatActivity {
+
+    EditText editText;
+    @BindView(R.id.searchBtn)
+    Button searchBtn;
+    private ArrayList<Movie> movieList;
+    private MoviesAdapter mAdapter;
+    RecyclerView recyclerView;
+
+    NetworkService service;
+
+    public static final String TAG = "MAIN";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+        ButterKnife.bind(this);
 
-        //데이터 바인딩
-        ActivityMainBinding binding = DataBindingUtil.setContentView(this, R.layout.activity_main);
-        binding.setActivity(this);
+        initView();
+        initNetworkService();
     }
-    
-    public void onButtonClick(View view) {
-        Toast.makeText(this, "clicked!", Toast.LENGTH_SHORT).show();
+
+    public void initView() {
+        editText = (EditText) findViewById(R.id.editText);
+        recyclerView = (RecyclerView) findViewById(R.id.recyclerView);
+        recyclerView.setLayoutManager(new LinearLayoutManager(this));
+    }
+
+    public void initNetworkService() {
+        Retrofit retrofit = new Retrofit.Builder()
+                .baseUrl("https://openapi.naver.com")
+                .addConverterFactory(GsonConverterFactory.create())
+                .addConverterFactory(ScalarsConverterFactory.create())
+                .build();
+        service = retrofit.create(NetworkService.class);
+    }
+
+    @OnClick(R.id.searchBtn)
+    public void onButtonClick() {
+        String word = editText.getText().toString();
+        Call<MovieResult> request = service.getMovieList(word);
+        request.enqueue(new Callback<MovieResult>() {
+            @Override
+            public void onResponse(Call<MovieResult> call, Response<MovieResult> response) {
+                if(response.isSuccessful()) {
+                    Log.d(TAG, "성공");
+                    movieList = response.body().items;
+                    mAdapter = new MoviesAdapter(getApplicationContext(), movieList);
+                    recyclerView.setAdapter(mAdapter);
+                }
+            }
+
+            @Override
+            public void onFailure(Call<MovieResult> call, Throwable t) {
+                Log.d(TAG, "실패 : " + t.getMessage());
+            }
+        });
     }
 }
